@@ -3,7 +3,7 @@ const http = require("http");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 7162;
+const port = process.env.PORT || 3001;
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -19,6 +19,12 @@ try {
   io.on("connection", (socket) => {
     console.log("connected");
     console.log(socket.id, "has joined");
+    
+    socket.on('testEvent', (data) => {
+      print('Sunucudan gelen veri: $data');
+      // Veriyi işleyin veya görsel olarak gösterin
+    });
+    
 
     // /test endpoint'ine gelen POST isteğini dinleyen route
     app.post("/test", (req, res) => {
