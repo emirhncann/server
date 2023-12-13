@@ -17,23 +17,23 @@ app.use(cors());
 
 try {
   io.on("connection", (socket) => {
-    console.log("connected");
-    console.log(socket.id, "has joined");
+    console.log("baglandı");
+    console.log(socket.id, "katildi");
     
     socket.on('testEvent', (data) => {
       print('Sunucudan gelen veri: $data');
-      // Veriyi işleyin veya görsel olarak gösterin
+      
     });
     
 
-    // /test endpoint'ine gelen POST isteğini dinleyen route
+  
     app.post("/test", (req, res) => {
       const receivedData = req.body;
-      console.log("Received data from /test endpoint:", receivedData);
+      console.log("gelen veri /test endpoint:", receivedData);
 
-      // Burada gelen veriyi işleyebilir ve gerekirse soketleri güncelleyebilirsiniz
-      io.emit("testEvent", receivedData); // Tüm soketlere gelen veriyi ilet
-      res.status(200).json({ success: true, message: "Data received successfully" });
+      
+      io.emit("testEvent", receivedData); 
+      res.status(200).json({ success: true, message: "veri alindi", msg: req.body.msg, id: req.body.phone });
     });
   });
 } catch (error) {
@@ -41,5 +41,5 @@ try {
 }
 
 server.listen(port, () => {
-  console.log("Server started on port", port);
+  console.log("server baslatildi. port", port);
 });
