@@ -23,7 +23,17 @@ socketIo.on("connection", (socket) => {
   socket.on("sendMessage", (message) => {
     // Mesajı hedef kullanıcıya gönder
     const targetSocketId = message.targetSocketId;
-    socket.to(targetSocketId).emit("receiveMessage", message);
+    const content = message.content;
+
+    // Mesajı JSON formatında oluştur
+    const jsonMessage = {
+      sender: socket.id,
+      content: content,
+      timestamp: new Date(),
+    };
+
+    // Gönderilen mesajı hedef kullanıcıya JSON formatında ileti
+    socket.to(targetSocketId).emit("receiveMessage", jsonMessage);
   });
 
   // Bağlantı kesildiğinde
