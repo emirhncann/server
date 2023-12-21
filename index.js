@@ -1,45 +1,38 @@
 const express = require("express");
 const http = require("http");
-const cors = require("cors");
+const io = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
+const socketIo = io(server);
+
+const connectedUsers = {};
+
+socketIo.on("connection", (socket) => {
+  console.log("Bağlandı:", socket.id);
+
+  // Yeni kullanıcı bağlandığında
+  socket.on("registerUser", (userData) => {
+    connectedUsers[socket.id] = userData;
+
+    // Diğer kullanıcılara yeni kullanıcıyı bildir
+    socket.broadcast.emit("newUser", userData);
+  });
+
+  // Mesaj alındığında
+  socket.on("sendMessage", (message) => {
+    // Mesajı hedef kullanıcıya gönder
+    const targetSocketId = message.targetSocketId;
+    socket.to(targetSocketId).emit("receiveMessage", message);
+  });
+
+  // Bağlantı kesildiğinde
+  socket.on("disconnect", () => {
+    console.log("Ayrıldı:", socket.id);
+    delete connectedUsers[socket.id];
+  });
 });
 
-const port = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(cors());
-
-try {
-  io.on("connection", (socket) => {
-    console.log("Bağlandı:", socket.id);
-
-    socket.on("testEvent", (data) => {
-      console.log('Sunucudan gelen veri:', data);
-    });
-  });
-
-  // Örnek dinamik endpoint
-  app.post("/dynamic/:endpointName", (req, res) => {
-    const endpointName = req.params.endpointName;
-    const receivedData = req.body;
-
-    console.log(`Gelen veri /${endpointName} endpoint:`, receivedData);
-
-    // Burada endpointName'e göre özel işlemler yapabilirsiniz.
-
-    io.emit(`${endpointName}Event`, receivedData);
-    res.status(200).json({ success: true, message: "Veri alındı", data: receivedData });
-  });
-} catch (error) {
-  console.log(error);
-}
-
-server.listen(port, () => {
-  console.log("Server başlatıldı. Port:", port);
+server.listen(3000, () => {
+  console.log("Server başlatıldı. Port: 3000");
 });
