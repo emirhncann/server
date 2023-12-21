@@ -33,6 +33,8 @@ socketIo.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log("Server başlatıldı. Port: 3000");
+// Dinleme yapılacak portu otomatik belirle
+const PORT = process.env.PORT || 0; 
+server.listen(PORT, () => {
+  console.log(`Server başlatıldı. Port: ${server.address().port}`);
 });
